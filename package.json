@@ -1,0 +1,30 @@
+{
+    "author": "davehawkey",
+    "dependencies": {},
+    "keywords": [],
+    "name": "gruniad",
+    "pebble": {
+        "displayName": "Gruniad",
+        "enableMultiJS": false,
+        "messageKeys": {
+            "KEY_ITEM_HEAD": 2,
+            "KEY_ITEM_NO": 1,
+            "KEY_ITEM_PAGE": 3,
+            "KEY_ITEM_TEXT": 4,
+            "KEY_REQUEST_TYPE": 5
+        },
+        "projectType": "native",
+        "resources": {
+            "media": []
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "aplite"
+        ],
+        "uuid": "9d064b4d-4cd3-4313-b2c0-e27b04119190",
+        "watchapp": {
+            "watchface": false
+        }
+    },
+    "version": "1.0.0"
+}
