@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>ASSET</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Syne+Mono&display=swap');
+
+:root {
+–bg: #0a0a0f;
+–surface: #12121a;
+–surface2: #1a1a28;
+–accent: #c8ff00;
+–accent2: #ff3c6e;
+–text: #e8e8f0;
+–muted: #555570;
+–border: #2a2a40;
+–asset-color: #ff3c6e;
+–seer-color: #3cf0c8;
+–receiver-color: #c8ff00;
+}
+
+- { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘Syne’, sans-serif;
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* NOISE TEXTURE */
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background-image: url(“data:image/svg+xml,%3Csvg viewBox=‘0 0 256 256’ xmlns=‘http://www.w3.org/2000/svg’%3E%3Cfilter id=‘noise’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.9’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3C/filter%3E%3Crect width=‘100%25’ height=‘100%25’ filter=‘url(%23noise)’ opacity=‘0.04’/%3E%3C/svg%3E”);
+pointer-events: none;
+z-index: 1000;
+opacity: 0.4;
+}
+
+.screen {
+display: none;
+min-height: 100vh;
+padding: 24px 20px 40px;
+animation: fadeIn 0.3s ease;
+}
+.screen.active { display: flex; flex-direction: column; }
+
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(8px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+/* TYPOGRAPHY */
+.title-massive {
+font-size: clamp(52px, 18vw, 96px);
+font-weight: 800;
+letter-spacing: -0.04em;
+line-height: 0.9;
+color: var(–accent);
+}
+.title-large {
+font-size: clamp(28px, 8vw, 48px);
+font-weight: 800;
+letter-spacing: -0.03em;
+line-height: 1;
+}
+.title-medium {
+font-size: 20px;
+font-weight: 700;
+letter-spacing: -0.01em;
+}
+.label {
+font-family: ‘Syne Mono’, monospace;
+font-size: 11px;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+color: var(–muted);
+}
+.mono { font-family: ‘Syne Mono’, monospace; }
+
+/* BUTTONS */
+.btn {
+display: block;
+width: 100%;
+padding: 18px 24px;
+border: none;
+border-radius: 4px;
+font-family: ‘Syne’, sans-serif;
+font-size: 16px;
+font-weight: 700;
+letter-spacing: 0.05em;
+cursor: pointer;
+transition: transform 0.1s, opacity 0.1s;
+text-transform: uppercase;
+}
+.btn:active { transform: scale(0.97); opacity: 0.9; }
+.btn-primary { background: var(–accent); color: #0a0a0f; }
+.btn-secondary { background: var(–surface2); color: var(–text); border: 1px solid var(–border); }
+.btn-danger { background: var(–accent2); color: #fff; }
+.btn-ghost { background: transparent; color: var(–muted); border: 1px solid var(–border); }
+.btn + .btn { margin-top: 10px; }
+.btn:disabled { opacity: 0.3; }
+
+/* INPUTS */
+input[type=“text”] {
+width: 100%;
+background: var(–surface2);
+border: 1px solid var(–border);
+border-radius: 4px;
+padding: 14px 16px;
+color: var(–text);
+font-family: ‘Syne’, sans-serif;
+font-size: 16px;
+outline: none;
+transition: border-color 0.2s;
+}
+input[type=“text”]:focus { border-color: var(–accent); }
+input[type=“text”]::placeholder { color: var(–muted); }
+
+/* CARDS */
+.card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 8px;
+padding: 20px;
+}
+.card + .card { margin-top: 10px; }
+
+/* DIVIDER */
+.divider {
+height: 1px;
+background: var(–border);
+margin: 24px 0;
+}
+
+/* SPACERS */
+.gap-8 { height: 8px; }
+.gap-12 { height: 12px; }
+.gap-16 { height: 16px; }
+.gap-24 { height: 24px; }
+.gap-32 { height: 32px; }
+.gap-40 { height: 40px; }
+.flex-grow { flex: 1; }
+
+/* PILL */
+.pill {
+display: inline-block;
+padding: 4px 12px;
+border-radius: 100px;
+font-size: 11px;
+font-weight: 700;
+letter-spacing: 0.1em;
+text-transform: uppercase;
+}
+.pill-asset { background: rgba(255,60,110,0.15); color: var(–asset-color); border: 1px solid rgba(255,60,110,0.3); }
+.pill-seer { background: rgba(60,240,200,0.15); color: var(–seer-color); border: 1px solid rgba(60,240,200,0.3); }
+.pill-receiver { background: rgba(200,255,0,0.1); color: var(–receiver-color); border: 1px solid rgba(200,255,0,0.2); }
+
+/* ROLE REVEAL */
+.role-reveal {
+border-radius: 12px;
+padding: 32px 24px;
+text-align: center;
+margin: 16px 0;
+}
+.role-reveal.asset { background: rgba(255,60,110,0.08); border: 1px solid rgba(255,60,110,0.2); }
+.role-reveal.seer { background: rgba(60,240,200,0.08); border: 1px solid rgba(60,240,200,0.2); }
+.role-reveal.receiver { background: rgba(200,255,0,0.05); border: 1px solid rgba(200,255,0,0.15); }
+
+.role-icon { font-size: 48px; margin-bottom: 12px; }
+.role-name { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px; }
+.role-name.asset { color: var(–asset-color); }
+.role-name.seer { color: var(–seer-color); }
+.role-name.receiver { color: var(–receiver-color); }
+.role-desc { font-size: 14px; color: var(–muted); line-height: 1.5; }
+
+/* CLUE BOX */
+.clue-box {
+background: var(–surface2);
+border-radius: 8px;
+padding: 24px;
+border-left: 3px solid var(–accent);
+margin: 16px 0;
+}
+.clue-text {
+font-size: 18px;
+font-weight: 700;
+line-height: 1.4;
+letter-spacing: -0.01em;
+}
+
+/* PLAYER LIST */
+.player-row {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 14px 16px;
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 6px;
+margin-bottom: 8px;
+}
+.player-seat {
+font-family: ‘Syne Mono’, monospace;
+font-size: 11px;
+color: var(–muted);
+min-width: 20px;
+}
+.player-name-display { font-weight: 700; flex: 1; }
+.player-emojis { font-size: 18px; letter-spacing: 2px; }
+
+/* VOTE BUTTONS */
+.vote-btn {
+display: flex;
+align-items: center;
+gap: 12px;
+width: 100%;
+padding: 16px;
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 6px;
+margin-bottom: 8px;
+cursor: pointer;
+text-align: left;
+font-family: ‘Syne’, sans-serif;
+color: var(–text);
+transition: border-color 0.15s, background 0.15s;
+}
+.vote-btn:active { background: var(–surface2); }
+.vote-btn.selected { border-color: var(–accent); background: rgba(200,255,0,0.05); }
+.vote-btn .vote-name { font-size: 16px; font-weight: 700; flex: 1; }
+.vote-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(–border); display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+.vote-btn.selected .vote-check { background: var(–accent); border-color: var(–accent); color: #0a0a0f; }
+
+/* SCOREBOARD */
+.score-row {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 14px 16px;
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 6px;
+margin-bottom: 8px;
+}
+.score-rank { font-family: ‘Syne Mono’, monospace; font-size: 13px; color: var(–muted); min-width: 24px; }
+.score-name { font-weight: 700; flex: 1; }
+.score-points { font-family: ‘Syne Mono’, monospace; font-size: 18px; font-weight: 700; color: var(–accent); }
+
+/* PASS SCREEN */
+.pass-screen-inner {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+text-align: center;
+gap: 20px;
+}
+.pass-name-big {
+font-size: clamp(36px, 10vw, 56px);
+font-weight: 800;
+letter-spacing: -0.03em;
+color: var(–accent);
+}
+
+/* PROGRESS DOTS */
+.progress-dots {
+display: flex;
+gap: 6px;
+justify-content: center;
+margin: 8px 0;
+}
+.dot {
+width: 8px; height: 8px;
+border-radius: 50%;
+background: var(–border);
+transition: background 0.2s;
+}
+.dot.done { background: var(–accent); }
+.dot.current { background: var(–muted); }
+
+/* RESULTS */
+.result-asset-reveal {
+text-align: center;
+padding: 32px 24px;
+border-radius: 12px;
+background: rgba(255,60,110,0.08);
+border: 1px solid rgba(255,60,110,0.2);
+margin: 16px 0;
+}
+
+/* COVER SCREEN */
+.cover {
+position: fixed;
+inset: 0;
+background: var(–bg);
+z-index: 500;
+display: flex;
+align-items: center;
+justify-content: center;
+flex-direction: column;
+gap: 16px;
+text-align: center;
+padding: 40px;
+}
+.cover.hidden { display: none; }
+.cover-icon { font-size: 64px; }
+.cover-label { font-family: ‘Syne Mono’, monospace; font-size: 12px; letter-spacing: 0.2em; color: var(–muted); text-transform: uppercase; }
+
+/* HEADER */
+.screen-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 24px;
+}
+.round-badge {
+font-family: ‘Syne Mono’, monospace;
+font-size: 12px;
+color: var(–muted);
+letter-spacing: 0.1em;
+}
+
+/* DUFF PICK */
+.duff-btn {
+display: flex;
+align-items: center;
+gap: 12px;
+width: 100%;
+padding: 16px;
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 6px;
+margin-bottom: 8px;
+cursor: pointer;
+text-align: left;
+font-family: ‘Syne’, sans-serif;
+color: var(–text);
+transition: border-color 0.15s;
+}
+.duff-btn.selected { border-color: var(–accent2); background: rgba(255,60,110,0.05); }
+.duff-btn .duff-name { font-size: 16px; font-weight: 700; flex: 1; }
+.duff-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(–border); display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+.duff-btn.selected .duff-check { background: var(–accent2); border-color: var(–accent2); color: #fff; }
+
+/* WARNING BOX */
+.warning-box {
+background: rgba(255,60,110,0.08);
+border: 1px solid rgba(255,60,110,0.2);
+border-radius: 8px;
+padding: 16px;
+font-size: 13px;
+color: var(–muted);
+line-height: 1.5;
+text-align: center;
+}
+
+/* HISTORY ITEM */
+.history-item {
+display: flex;
+align-items: center;
+gap: 8px;
+font-size: 13px;
+color: var(–muted);
+padding: 6px 0;
+border-bottom: 1px solid var(–border);
+}
+.history-item:last-child { border-bottom: none; }
+.history-correct { color: var(–accent); }
+.history-wrong { color: var(–accent2); }
+
+.results-vote-row {
+display: flex;
+align-items: center;
+gap: 8px;
+padding: 10px 14px;
+background: var(–surface);
+border-radius: 6px;
+margin-bottom: 6px;
+font-size: 14px;
+}
+.results-vote-count {
+font-family: ‘Syne Mono’, monospace;
+color: var(–accent);
+min-width: 24px;
+font-size: 16px;
+font-weight: 700;
+}
+
+</style>
+</head>
+<body>
+
+<!-- COVER: shown between players so screen isn't peeked -->
+
+<div class="cover hidden" id="cover">
+  <div class="cover-icon">🔒</div>
+  <div class="title-large" style="color:var(--accent)">ASSET</div>
+  <div class="cover-label" id="cover-label">Pass the phone</div>
+  <div style="margin-top:24px;width:100%;max-width:320px">
+    <button class="btn btn-primary" onclick="hideCover()">I have the phone</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 1: TITLE / LANDING
+════════════════════════════════════════════ -->
+
+<div class="screen active" id="screen-title">
+  <div class="gap-40"></div>
+  <div class="title-massive">ASSET</div>
+  <div class="gap-8"></div>
+  <div class="label">A social deduction game</div>
+  <div class="gap-40"></div>
+  <div style="font-size:14px;color:var(--muted);line-height:1.7">
+    One player each round is the <span style="color:var(--asset-color);font-weight:700">Asset</span> — a secret operative everyone is trying to expose. 
+    One player is the <span style="color:var(--seer-color);font-weight:700">Seer</span> — they hold a true clue. 
+    But clues can be wrong, and anyone can lie.
+  </div>
+  <div class="flex-grow"></div>
+  <button class="btn btn-primary" onclick="showScreen('screen-setup')">New Game</button>
+  <div class="gap-16"></div>
+  <button class="btn btn-ghost" onclick="showRules()">How to Play</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 2: PLAYER SETUP
+════════════════════════════════════════════ -->
+
+<div class="screen" id="screen-setup">
+  <div class="label">Setup</div>
+  <div class="gap-8"></div>
+  <div class="title-large">Players</div>
+  <div class="gap-4"></div>
+  <div style="font-size:13px;color:var(--muted)">Enter names in seating order (left to right around the circle). Min 4 players.</div>
+  <div class="gap-24"></div>
+
+  <div id="player-inputs"></div>
+
+  <div class="gap-12"></div>
+  <button class="btn btn-secondary" onclick="addPlayerInput()">+ Add Player</button>
+  <div class="gap-24"></div>
+  <div class="divider"></div>
+  <div class="gap-8"></div>
+  <button class="btn btn-primary" id="start-btn" onclick="startGame()" disabled>Begin Game</button>
+  <div class="gap-16"></div>
+  <button class="btn btn-ghost" onclick="showScreen('screen-title')">Back</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 3: ROUND START (duff pick)
+════════════════════════════════════════════ -->
+
+<div class="screen" id="screen-round-start">
+  <div class="screen-header">
+    <div class="label" id="round-label-start">Round 1</div>
+    <div class="round-badge" id="round-score-badge"></div>
+  </div>
+  <div class="title-large">Your move</div>
+  <div class="gap-8"></div>
+  <div style="font-size:13px;color:var(--muted);line-height:1.6">
+    If you were the Asset this round, who would you want to mislead? Pick one player to receive a duff clue.
+    <br><br>This is collected from everyone before roles are assigned.
+  </div>
+  <div class="gap-24"></div>
+  <div id="duff-pick-list"></div>
+  <div class="flex-grow"></div>
+  <button class="btn btn-primary" id="duff-confirm-btn" onclick="confirmDuffPick()" disabled>Confirm</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 4: CLUE REVEAL (per player)
+════════════════════════════════════════════ -->
+
+<div class="screen" id="screen-clue">
+  <div class="screen-header">
+    <div class="label" id="round-label-clue">Round 1</div>
+    <div class="progress-dots" id="clue-progress"></div>
+  </div>
+
+  <div class="pass-name-big" id="clue-player-name"></div>
+  <div class="gap-4"></div>
+  <div class="label">your briefing</div>
+
+  <div class="role-reveal" id="role-reveal-box">
+    <div class="role-icon" id="role-icon"></div>
+    <div class="role-name" id="role-name-display"></div>
+    <div class="gap-8"></div>
+    <div class="role-desc" id="role-desc"></div>
+  </div>
+
+  <div class="clue-box" id="clue-box">
+    <div class="label" style="margin-bottom:10px">Your clue</div>
+    <div class="clue-text" id="clue-text"></div>
+  </div>
+
+  <div class="warning-box">
+    Memorise your clue. Do not show anyone this screen.
+  </div>
+
+  <div class="flex-grow"></div>
+  <button class="btn btn-primary" id="clue-next-btn" onclick="nextCluePlayer()">Done — lock screen</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 5: DISCUSSION
+════════════════════════════════════════════ -->
+
+<div class="screen" id="screen-discuss">
+  <div class="screen-header">
+    <div class="label" id="round-label-discuss">Round 1</div>
+  </div>
+  <div class="title-large">Discuss</div>
+  <div class="gap-12"></div>
+  <div style="font-size:14px;color:var(--muted);line-height:1.6">
+    Share what your clues told you. Remember — some clues are false, and the Asset will lie.
+    <br><br>
+    Everyone knows the <span style="color:var(--seer-color);font-weight:700">Seer</span> has a true clue — but nobody knows who the Seer is.
+  </div>
+  <div class="gap-24"></div>
+
+  <div id="round-history-box"></div>
+
+  <div class="flex-grow"></div>
+  <button class="btn btn-primary" onclick="showScreen_vote();showVoteForCurrentPlayer();">Go to Vote</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 6: VOTE
+════════════════════════════════════════════ -->
+
+<div class="screen" id="screen-vote">
+  <div class="screen-header">
+    <div class="label" id="round-label-vote">Round 1</div>
+  </div>
+  <div class="title-large">Vote</div>
+  <div class="gap-8"></div>
+  <div style="font-size:13px;color:var(--muted)">Pass the phone. Each player votes privately for who they think the Asset is.</div>
+  <div class="gap-24"></div>
+
+  <div class="progress-dots" id="vote-progress"></div>
+  <div class="gap-16"></div>
+
+  <div class="pass-name-big" id="vote-player-name"></div>
+  <div class="label" style="margin-top:4px">who is the asset?</div>
+  <div class="gap-20"></div>
+
+  <div id="vote-list"></div>
+  <div class="flex-grow"></div>
+  <button class="btn btn-primary" id="vote-confirm-btn" onclick="confirmVote()" disabled>Cast Vote — lock screen</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 7: RESULTS
+════════════════════════════════════════════ -->
+
+<div class="screen" id="screen-results">
+  <div class="screen-header">
+    <div class="label" id="round-label-results">Round 1 — Results</div>
+  </div>
+  <div class="title-large">Exposed</div>
+
+  <div class="result-asset-reveal" id="result-reveal-box">
+    <div style="font-size:13px;color:var(--muted);margin-bottom:8px">The Asset was</div>
+    <div style="font-size:36px;font-weight:800;letter-spacing:-0.02em;color:var(--asset-color)" id="result-asset-name"></div>
+    <div style="margin-top:8px;font-size:13px;color:var(--muted)" id="result-seer-line"></div>
+  </div>
+
+  <div class="label" style="margin-bottom:12px">Votes cast</div>
+  <div id="results-votes-list"></div>
+
+  <div class="divider"></div>
+
+  <div class="label" style="margin-bottom:12px">Scores this round</div>
+  <div id="results-round-scores"></div>
+
+  <div class="flex-grow"></div>
+  <button class="btn btn-primary" onclick="nextRound()">Next Round</button>
+  <div class="gap-10"></div>
+  <button class="btn btn-ghost" onclick="showScreen('screen-scoreboard')">Full Scoreboard</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 8: SCOREBOARD
+════════════════════════════════════════════ -->
+
+<div class="screen" id="screen-scoreboard">
+  <div class="label" id="scoreboard-round-label">After Round 1</div>
+  <div class="gap-8"></div>
+  <div class="title-large">Standings</div>
+  <div class="gap-24"></div>
+  <div id="scoreboard-list"></div>
+  <div class="flex-grow"></div>
+  <button class="btn btn-primary" onclick="nextRound()">Next Round</button>
+  <div class="gap-10"></div>
+  <button class="btn btn-danger" onclick="endGame()">End Game</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 9: GAME OVER
+════════════════════════════════════════════ -->
+
+<div class="screen" id="screen-gameover">
+  <div class="gap-40"></div>
+  <div class="title-massive">GAME<br>OVER</div>
+  <div class="gap-24"></div>
+  <div class="label">Winner</div>
+  <div class="gap-8"></div>
+  <div style="font-size:40px;font-weight:800;color:var(--accent)" id="winner-name"></div>
+  <div class="gap-32"></div>
+  <div class="label" style="margin-bottom:12px">Final Standings</div>
+  <div id="final-scoreboard"></div>
+  <div class="flex-grow"></div>
+  <button class="btn btn-primary" onclick="location.reload()">New Game</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN: RULES
+════════════════════════════════════════════ -->
+
+<div class="screen" id="screen-rules">
+  <div class="label">How to Play</div>
+  <div class="gap-8"></div>
+  <div class="title-large">Rules</div>
+  <div class="gap-24"></div>
+
+  <div class="card">
+    <div class="title-medium" style="color:var(--asset-color);margin-bottom:8px">🕵️ The Asset</div>
+    <div style="font-size:14px;color:var(--muted);line-height:1.6">You are the operative everyone is trying to expose. You receive a clue like everyone else — but yours is false. Blend in, misdirect, survive the vote. Score points for every vote you don't receive.</div>
+  </div>
+
+  <div class="gap-10"></div>
+
+  <div class="card">
+    <div class="title-medium" style="color:var(--seer-color);margin-bottom:8px">👁 The Seer</div>
+    <div style="font-size:14px;color:var(--muted);line-height:1.6">Your clue is guaranteed true. You don't know you're the Seer — but everyone knows one player has a true clue. Use your information confidently, but be careful: being too certain makes you a target.</div>
+  </div>
+
+  <div class="gap-10"></div>
+
+  <div class="card">
+    <div class="title-medium" style="color:var(--receiver-color);margin-bottom:8px">📡 Receivers</div>
+    <div style="font-size:14px;color:var(--muted);line-height:1.6">You receive a clue that may or may not be accurate. Work with others to cross-reference clues and find the Asset. Score points for voting correctly.</div>
+  </div>
+
+  <div class="gap-10"></div>
+
+  <div class="card">
+    <div class="title-medium" style="margin-bottom:8px">🎯 Scoring</div>
+    <div style="font-size:14px;color:var(--muted);line-height:1.6">
+      <strong style="color:var(--text)">Correct vote:</strong> +3 points<br>
+      <strong style="color:var(--text)">Asset survives:</strong> +2 per vote not received<br>
+      <strong style="color:var(--text)">Asset caught by majority:</strong> voters get bonus +1
+    </div>
+  </div>
+
+  <div class="gap-10"></div>
+
+  <div class="card">
+    <div class="title-medium" style="margin-bottom:8px">🌀 Duff Clues</div>
+    <div style="font-size:14px;color:var(--muted);line-height:1.6">Before each round, everyone secretly picks who they'd mislead if they were the Asset. The app uses these nominations — so duff clues reflect real suspicions, not random noise.</div>
+  </div>
+
+  <div class="flex-grow"></div>
+  <button class="btn btn-primary" onclick="showScreen('screen-title')">Got it</button>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// GAME STATE
+// ══════════════════════════════════════════
+let state = {
+  players: [],       // [{name, emojis, score, roundsAsAsset, roundsAssetCaught}]
+  round: 0,
+  history: [],       // [{assetIdx, seerIdx, votes:[playerIdx], duffTarget}]
+
+  // current round working data
+  currentAssetIdx: -1,
+  currentSeerIdx: -1,
+  duffTargetIdx: -1,   // who actually gets the duff clue
+  duffPicks: [],       // one per player
+  duffPicksDone: 0,    // how many players have submitted
+  clues: [],           // one per player
+
+  // pass-around tracking
+  cluePlayerIdx: 0,    // which player is currently reading their clue
+  votePlayerIdx: 0,
+  votes: [],           // one per player (index of who they voted for)
+};
+
+const EMOJI_POOL = [
+  '🌙','⭐','🔥','💧','🌿','🦊','🐺','🦅','🐬','🌊',
+  '⚡','❄️','🌸','🍄','🦋','🐝','🌵','🏔️','🌋','🎯',
+  '🔮','💎','🗝️','⚓','🎭','🌀','🧩','🎲','🪐','🌈',
+  '🦁','🐘','🦉','🐊','🦈','🌺','🍁','🌙','💫','🎪',
+  '🔱','⚜️','🧿','🎑','🏹','🪬','🌠','🗺️','🧲','🪄'
+];
+
+// ══════════════════════════════════════════
+// SCREEN MANAGEMENT
+// ══════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function showCover(label, onUnlock) {
+  const cover = document.getElementById('cover');
+  document.getElementById('cover-label').textContent = label;
+  cover.classList.remove('hidden');
+  cover._onUnlock = onUnlock;
+}
+
+function hideCover() {
+  document.getElementById('cover').classList.add('hidden');
+  const cover = document.getElementById('cover');
+  if (cover._onUnlock) cover._onUnlock();
+}
+
+function showRules() { showScreen('screen-rules'); }
+
+// ══════════════════════════════════════════
+// SETUP
+// ══════════════════════════════════════════
+function addPlayerInput() {
+  const container = document.getElementById('player-inputs');
+  const idx = container.children.length;
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:center';
+  row.innerHTML = `
+    <input type="text" placeholder="Player ${idx+1}" oninput="checkStartBtn()" style="flex:1">
+    ${idx >= 4 ? `<button onclick="removePlayer(this)" style="background:none;border:1px solid var(--border);color:var(--muted);padding:14px 12px;border-radius:4px;cursor:pointer;font-size:16px">✕</button>` : ''}
+  `;
+  container.appendChild(row);
+  checkStartBtn();
+}
+
+function removePlayer(btn) {
+  btn.parentElement.remove();
+  checkStartBtn();
+}
+
+function checkStartBtn() {
+  const inputs = document.querySelectorAll('#player-inputs input');
+  const filled = [...inputs].filter(i => i.value.trim()).length;
+  document.getElementById('start-btn').disabled = filled < 4;
+}
+
+function initSetup() {
+  const container = document.getElementById('player-inputs');
+  container.innerHTML = '';
+  for(let i=0;i<4;i++) addPlayerInput();
+}
+
+function assignEmojis() {
+  const pool = [...EMOJI_POOL];
+  shuffle(pool);
+  return [pool[0], pool[1], pool[2]];
+}
+
+function startGame() {
+  const inputs = [...document.querySelectorAll('#player-inputs input')];
+  const names = inputs.map(i => i.value.trim()).filter(Boolean);
+  if(names.length < 4) return;
+
+  state.players = names.map(name => ({
+    name,
+    emojis: assignEmojis(),
+    score: 0,
+    roundsAsAsset: 0,
+    roundsAssetCaught: 0
+  }));
+  state.round = 0;
+  state.history = [];
+
+  startRound();
+}
+
+// ══════════════════════════════════════════
+// ROUND LOGIC
+// ══════════════════════════════════════════
+function startRound() {
+  state.round++;
+  state.duffPicks = new Array(state.players.length).fill(-1);
+  state.duffPicksDone = 0;
+  state.votes = new Array(state.players.length).fill(-1);
+  state.clues = [];
+  state.currentAssetIdx = -1;
+  state.currentSeerIdx = -1;
+  state.duffTargetIdx = -1;
+  state.cluePlayerIdx = 0;
+  state.votePlayerIdx = 0;
+
+  // Start duff pick phase — pass phone to each player
+  beginDuffPickPhase();
+}
+
+function beginDuffPickPhase() {
+  state.duffPicksDone = 0;
+  showDuffPickForPlayer(0);
+}
+
+function showDuffPickForPlayer(playerIdx) {
+  if(playerIdx >= state.players.length) {
+    // All picks done — assign roles and generate clues
+    assignRolesAndClues();
+    beginCluePhase();
+    return;
+  }
+
+  const player = state.players[playerIdx];
+  document.getElementById('round-label-start').textContent = `Round ${state.round}`;
+
+  const list = document.getElementById('duff-pick-list');
+  list.innerHTML = '';
+  state.players.forEach((p, i) => {
+    if(i === playerIdx) return; // can't pick yourself
+    const btn = document.createElement('button');
+    btn.className = 'duff-btn';
+    btn.dataset.idx = i;
+    btn.innerHTML = `
+      <span class="duff-name">${p.name}</span>
+      <span class="duff-check"></span>
+    `;
+    btn.onclick = () => selectDuff(btn, i, playerIdx);
+    list.appendChild(btn);
+  });
+
+  document.getElementById('duff-confirm-btn').disabled = true;
+
+  if(playerIdx === 0) {
+    showScreen('screen-round-start');
+  } else {
+    showCover(`Pass to ${player.name}`, () => showScreen('screen-round-start'));
+  }
+
+  // Update header
+  document.getElementById('round-label-start').innerHTML =
+    `Round ${state.round} &nbsp;<span style="color:var(--muted);font-size:11px">${player.name}'s pick</span>`;
+}
+
+function selectDuff(btn, targetIdx, currentPlayerIdx) {
+  document.querySelectorAll('.duff-btn').forEach(b => {
+    b.classList.remove('selected');
+    b.querySelector('.duff-check').textContent = '';
+  });
+  btn.classList.add('selected');
+  btn.querySelector('.duff-check').textContent = '✓';
+  state.duffPicks[currentPlayerIdx] = targetIdx;
+  document.getElementById('duff-confirm-btn').disabled = false;
+}
+
+function confirmDuffPick() {
+  state.duffPicksDone++;
+  showDuffPickForPlayer(state.duffPicksDone);
+}
+
+// ──────────────────────────────────────────
+// ROLE + CLUE ASSIGNMENT
+// ──────────────────────────────────────────
+function assignRolesAndClues() {
+  const n = state.players.length;
+
+  // Pick Asset — avoid same person multiple times if possible
+  let assetCandidates = state.players.map((_,i)=>i);
+  // Prefer players who haven't been Asset recently
+  const lastTwo = state.history.slice(-2).map(h=>h.assetIdx);
+  const preferred = assetCandidates.filter(i=>!lastTwo.includes(i));
+  if(preferred.length > 0) assetCandidates = preferred;
+  state.currentAssetIdx = assetCandidates[Math.floor(Math.random()*assetCandidates.length)];
+
+  // Pick Seer — not the Asset
+  let seerCandidates = assetCandidates.filter(i=>i!==state.currentAssetIdx);
+  state.currentSeerIdx = seerCandidates[Math.floor(Math.random()*seerCandidates.length)];
+
+  // Determine duff target — most nominated player (excluding asset)
+  const tallies = new Array(n).fill(0);
+  state.duffPicks.forEach((pick, voter) => {
+    if(pick >= 0 && pick !== state.currentAssetIdx) tallies[pick]++;
+  });
+  // Asset's own pick is used if they're asset
+  const assetPick = state.duffPicks[state.currentAssetIdx];
+  if(assetPick >= 0) tallies[assetPick] += 2; // asset's pick weighted more
+
+  // Find max (not the asset, not the seer)
+  let maxTally = -1, duffTarget = -1;
+  tallies.forEach((t,i) => {
+    if(i !== state.currentAssetIdx && t > maxTally) { maxTally = t; duffTarget = i; }
+  });
+  // Fallback: random non-asset
+  if(duffTarget < 0) {
+    const candidates = [...Array(n).keys()].filter(i=>i!==state.currentAssetIdx && i!==state.currentSeerIdx);
+    duffTarget = candidates[Math.floor(Math.random()*candidates.length)];
+  }
+  state.duffTargetIdx = duffTarget;
+
+  // Generate clues
+  state.clues = state.players.map((_, idx) => generateClue(idx));
+}
+
+// ──────────────────────────────────────────
+// CLUE GENERATION
+// ──────────────────────────────────────────
+function generateClue(forPlayerIdx) {
+  const isAsset = forPlayerIdx === state.currentAssetIdx;
+  const isDuffTarget = forPlayerIdx === state.duffTargetIdx;
+
+  if(isAsset) {
+    // Asset gets a false clue
+    return getFalseClue(forPlayerIdx);
+  } else if(isDuffTarget) {
+    // Duff target gets a false clue
+    return getFalseClue(forPlayerIdx);
+  } else {
+    // Everyone else gets a true clue (seer included — they just don't know theirs is special)
+    return getTrueClue(forPlayerIdx);
+  }
+}
+
+function getTrueClue(forPlayerIdx) {
+  const n = state.players.length;
+  const assetIdx = state.currentAssetIdx;
+  const clueTypes = buildTrueClues(forPlayerIdx, assetIdx, n);
+  return clueTypes[Math.floor(Math.random() * clueTypes.length)];
+}
+
+function getFalseClue(forPlayerIdx) {
+  const n = state.players.length;
+  const assetIdx = state.currentAssetIdx;
+  // Pick a random non-asset to be the "false asset"
+  let falseIdx;
+  do { falseIdx = Math.floor(Math.random()*n); }
+  while(falseIdx === assetIdx);
+
+  const clueTypes = buildTrueClues(forPlayerIdx, falseIdx, n);
+  return clueTypes[Math.floor(Math.random() * clueTypes.length)];
+}
+
+function buildTrueClues(forPlayerIdx, targetIdx, n) {
+  const clues = [];
+  const dist = circularDistance(forPlayerIdx, targetIdx, n);
+  const isAdjacent = dist === 1;
+  const isOpposite = dist >= Math.floor(n/2);
+  const targetPlayer = state.players[targetIdx];
+  const forPlayer = state.players[forPlayerIdx];
+
+  // Position clues
+  clues.push(`The Asset is ${dist} seat${dist!==1?'s':''} away from you in the circle.`);
+
+  if(isAdjacent) {
+    clues.push(`The Asset is sitting directly next to you.`);
+  }
+  if(isOpposite && n >= 6) {
+    clues.push(`The Asset is on the opposite side of the circle from you.`);
+  }
+  if(dist <= 2) {
+    clues.push(`The Asset is within 2 seats of you.`);
+  }
+  if(dist > Math.floor(n/2)) {
+    clues.push(`The Asset is in the far half of the circle from you.`);
+  }
+
+  // Left/right clue
+  const leftDist = (targetIdx - forPlayerIdx + n) % n;
+  const rightDist = (forPlayerIdx - targetIdx + n) % n;
+  if(leftDist <= rightDist) {
+    clues.push(`Counting left around the circle, the Asset is ${leftDist} seat${leftDist!==1?'s':''} from you.`);
+  } else {
+    clues.push(`Counting right around the circle, the Asset is ${rightDist} seat${rightDist!==1?'s':''} from you.`);
+  }
+
+  // History clues (only if history exists)
+  if(state.history.length > 0) {
+    const last = state.history[state.history.length - 1];
+
+    if(last.assetIdx === targetIdx) {
+      clues.push(`The Asset was also the Asset last round.`);
+    } else {
+      clues.push(`The Asset was not the Asset last round.`);
+    }
+
+    const targetVotedFor = last.votes[targetIdx];
+    if(targetVotedFor !== undefined) {
+      if(targetVotedFor === last.assetIdx) {
+        clues.push(`The Asset voted correctly last round.`);
+      } else {
+        clues.push(`The Asset voted incorrectly last round.`);
+      }
+    }
+
+    // Did most people vote for this player last round?
+    const votesForTarget = last.votes.filter(v => v === targetIdx).length;
+    if(votesForTarget > 0) {
+      clues.push(`${votesForTarget} player${votesForTarget!==1?'s':''} voted for the Asset last round.`);
+    } else {
+      clues.push(`No one voted for the Asset last round.`);
+    }
+  }
+
+  if(state.history.length >= 2) {
+    const timesAsAsset = state.players[targetIdx].roundsAsAsset;
+    if(timesAsAsset === 0) {
+      clues.push(`The Asset has never held that role before this round.`);
+    } else {
+      clues.push(`The Asset has been the Asset ${timesAsAsset} time${timesAsAsset!==1?'s':''} before.`);
+    }
+  }
+
+  return clues;
+}
+
+function circularDistance(a, b, n) {
+  const d = Math.abs(a - b);
+  return Math.min(d, n - d);
+}
+
+// ──────────────────────────────────────────
+// CLUE PHASE (pass phone around)
+// ──────────────────────────────────────────
+function beginCluePhase() {
+  state.cluePlayerIdx = 0;
+  showClueForCurrentPlayer();
+}
+
+function showClueForCurrentPlayer() {
+  const idx = state.cluePlayerIdx;
+  const player = state.players[idx];
+  const isAsset = idx === state.currentAssetIdx;
+  const isSeer = idx === state.currentSeerIdx;
+
+  document.getElementById('round-label-clue').textContent = `Round ${state.round}`;
+  document.getElementById('clue-player-name').textContent = player.name;
+
+  // Progress dots
+  const dotsEl = document.getElementById('clue-progress');
+  dotsEl.innerHTML = state.players.map((_, i) => {
+    let cls = i < idx ? 'done' : (i === idx ? 'current' : '');
+    return `<div class="dot ${cls}"></div>`;
+  }).join('');
+
+  // Role reveal
+  const box = document.getElementById('role-reveal-box');
+  const iconEl = document.getElementById('role-icon');
+  const nameEl = document.getElementById('role-name-display');
+  const descEl = document.getElementById('role-desc');
+
+  box.className = 'role-reveal';
+  if(isAsset) {
+    box.classList.add('asset');
+    iconEl.textContent = '🕵️';
+    nameEl.className = 'role-name asset';
+    nameEl.textContent = 'ASSET';
+    descEl.textContent = 'You are the operative. Everyone is trying to expose you. Your clue is false — use it to blend in. Survive the vote.';
+  } else if(isSeer) {
+    box.classList.add('seer');
+    iconEl.textContent = '👁';
+    nameEl.className = 'role-name seer';
+    nameEl.textContent = 'SEER';
+    descEl.textContent = 'You are a Receiver this round — but your clue is true. You don\'t know you\'re the Seer. Others know one player has a true clue, but not who.';
+  } else {
+    box.classList.add('receiver');
+    iconEl.textContent = '📡';
+    nameEl.className = 'role-name receiver';
+    nameEl.textContent = 'RECEIVER';
+    descEl.textContent = 'You have a clue that may or may not be reliable. Work with others to find the Asset.';
+  }
+
+  // Clue
+  document.getElementById('clue-text').textContent = state.clues[idx];
+
+  showScreen('screen-clue');
+}
+
+function nextCluePlayer() {
+  state.cluePlayerIdx++;
+  if(state.cluePlayerIdx >= state.players.length) {
+    // All players have seen clues — go to discussion
+    showCover('Everyone has their briefing. Gather together.', () => {
+      buildDiscussionScreen();
+      showScreen('screen-discuss');
+    });
+  } else {
+    const next = state.players[state.cluePlayerIdx];
+    showCover(`Pass to ${next.name}`, showClueForCurrentPlayer);
+  }
+}
+
+// ──────────────────────────────────────────
+// DISCUSSION SCREEN
+// ──────────────────────────────────────────
+function buildDiscussionScreen() {
+  document.getElementById('round-label-discuss').textContent = `Round ${state.round}`;
+
+  const histBox = document.getElementById('round-history-box');
+  histBox.innerHTML = '';
+
+  if(state.history.length === 0) {
+    histBox.innerHTML = '<div style="font-size:13px;color:var(--muted)">No history yet — this is the first round.</div>';
+    return;
+  }
+
+  const label = document.createElement('div');
+  label.className = 'label';
+  label.style.marginBottom = '10px';
+  label.textContent = 'Previous rounds';
+  histBox.appendChild(label);
+
+  state.history.forEach((h, i) => {
+    const assetName = state.players[h.assetIdx].name;
+    const correctVotes = h.votes.filter(v => v === h.assetIdx).length;
+    const majority = correctVotes > state.players.length / 2;
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    item.innerHTML = `
+      <span style="font-family:'Syne Mono',monospace;font-size:11px;color:var(--muted);min-width:60px">Round ${i+1}</span>
+      <span>Asset: <strong style="color:var(--asset-color)">${assetName}</strong></span>
+      <span class="${majority?'history-wrong':'history-correct'}" style="margin-left:auto;font-size:12px">${majority?'Exposed':'Survived'}</span>
+    `;
+    histBox.appendChild(item);
+  });
+}
+
+// ──────────────────────────────────────────
+// VOTE PHASE
+// ──────────────────────────────────────────
+function showScreen_vote() {
+  state.votePlayerIdx = 0;
+  showVoteForCurrentPlayer();
+}
+
+function showVoteForCurrentPlayer() {
+  const idx = state.votePlayerIdx;
+  const player = state.players[idx];
+
+  document.getElementById('round-label-vote').textContent = `Round ${state.round}`;
+  document.getElementById('vote-player-name').textContent = player.name;
+
+  // Progress
+  const dotsEl = document.getElementById('vote-progress');
+  dotsEl.innerHTML = state.players.map((_, i) => {
+    let cls = i < idx ? 'done' : (i === idx ? 'current' : '');
+    return `<div class="dot ${cls}"></div>`;
+  }).join('');
+
+  // Vote list
+  const list = document.getElementById('vote-list');
+  list.innerHTML = '';
+  state.players.forEach((p, i) => {
+    if(i === idx) return; // can't vote for yourself
+    const btn = document.createElement('button');
+    btn.className = 'vote-btn';
+    btn.dataset.idx = i;
+    btn.innerHTML = `
+      <span class="vote-name">${p.name}</span>
+      <span class="vote-check"></span>
+    `;
+    btn.onclick = () => selectVote(btn, i, idx);
+    list.appendChild(btn);
+  });
+
+  document.getElementById('vote-confirm-btn').disabled = true;
+  showScreen('screen-vote');
+}
+
+function selectVote(btn, targetIdx, voterIdx) {
+  document.querySelectorAll('.vote-btn').forEach(b => {
+    b.classList.remove('selected');
+    b.querySelector('.vote-check').textContent = '';
+  });
+  btn.classList.add('selected');
+  btn.querySelector('.vote-check').textContent = '✓';
+  state.votes[voterIdx] = targetIdx;
+  document.getElementById('vote-confirm-btn').disabled = false;
+}
+
+function confirmVote() {
+  state.votePlayerIdx++;
+  if(state.votePlayerIdx >= state.players.length) {
+    // All votes in
+    showResults();
+  } else {
+    const next = state.players[state.votePlayerIdx];
+    showCover(`Pass to ${next.name}`, showVoteForCurrentPlayer);
+  }
+}
+
+// ──────────────────────────────────────────
+// RESULTS + SCORING
+// ──────────────────────────────────────────
+function showResults() {
+  const assetIdx = state.currentAssetIdx;
+  const seerIdx = state.currentSeerIdx;
+  const n = state.players.length;
+
+  // Count votes
+  const voteTallies = new Array(n).fill(0);
+  state.votes.forEach(v => { if(v >= 0) voteTallies[v]++; });
+
+  const votesOnAsset = voteTallies[assetIdx];
+  const majority = votesOnAsset > n / 2;
+
+  // Score
+  const roundScores = new Array(n).fill(0);
+  state.players.forEach((_, i) => {
+    if(i === assetIdx) {
+      // Asset scores for each vote NOT received
+      const votesNotReceived = (n - 1) - votesOnAsset;
+      roundScores[i] = votesNotReceived * 2;
+    } else {
+      if(state.votes[i] === assetIdx) {
+        roundScores[i] = 3;
+        if(majority) roundScores[i] += 1; // bonus if majority caught asset
+      }
+    }
+  });
+
+  // Apply scores
+  state.players.forEach((p, i) => { p.score += roundScores[i]; });
+
+  // Update asset stats
+  state.players[assetIdx].roundsAsAsset++;
+  if(majority) state.players[assetIdx].roundsAssetCaught++;
+
+  // Save to history
+  state.history.push({
+    assetIdx,
+    seerIdx,
+    votes: [...state.votes],
+    duffTargetIdx: state.duffTargetIdx
+  });
+
+  // Build results screen
+  document.getElementById('round-label-results').textContent = `Round ${state.round} — Results`;
+  document.getElementById('result-asset-name').textContent = state.players[assetIdx].name;
+  document.getElementById('result-seer-line').textContent =
+    `The Seer was ${state.players[seerIdx].name} — their clue was true.`;
+
+  // Votes list
+  const votesList = document.getElementById('results-votes-list');
+  votesList.innerHTML = '';
+  const sortedByVotes = [...Array(n).keys()]
+    .filter(i => voteTallies[i] > 0)
+    .sort((a,b) => voteTallies[b] - voteTallies[a]);
+
+  if(sortedByVotes.length === 0) {
+    votesList.innerHTML = '<div style="font-size:13px;color:var(--muted)">No votes cast.</div>';
+  } else {
+    sortedByVotes.forEach(i => {
+      const row = document.createElement('div');
+      row.className = 'results-vote-row';
+      row.innerHTML = `
+        <span class="results-vote-count">${voteTallies[i]}</span>
+        <span style="flex:1;font-weight:700">${state.players[i].name}</span>
+        ${i === assetIdx ? '<span class="pill pill-asset">Asset</span>' : ''}
+      `;
+      votesList.appendChild(row);
+    });
+  }
+
+  // Round scores
+  const roundScoresList = document.getElementById('results-round-scores');
+  roundScoresList.innerHTML = '';
+  [...Array(n).keys()]
+    .sort((a,b) => roundScores[b] - roundScores[a])
+    .forEach(i => {
+      const row = document.createElement('div');
+      row.className = 'score-row';
+      row.innerHTML = `
+        <span class="score-name">${state.players[i].name}</span>
+        ${i === assetIdx ? '<span class="pill pill-asset" style="font-size:10px">Asset</span>' : ''}
+        ${i === seerIdx ? '<span class="pill pill-seer" style="font-size:10px">Seer</span>' : ''}
+        <span class="score-points">+${roundScores[i]}</span>
+      `;
+      roundScoresList.appendChild(row);
+    });
+
+  showScreen('screen-results');
+}
+
+// ──────────────────────────────────────────
+// SCOREBOARD
+// ──────────────────────────────────────────
+function buildScoreboard(containerId) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  const sorted = [...state.players].sort((a,b) => b.score - a.score);
+  sorted.forEach((p, rank) => {
+    const row = document.createElement('div');
+    row.className = 'score-row';
+    row.innerHTML = `
+      <span class="score-rank">${rank+1}</span>
+      <span class="score-name">${p.name}</span>
+      <span class="score-points">${p.score}</span>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function showFullScoreboard() {
+  document.getElementById('scoreboard-round-label').textContent = `After Round ${state.round}`;
+  buildScoreboard('scoreboard-list');
+  showScreen('screen-scoreboard');
+}
+
+function nextRound() {
+  startRound();
+}
+
+function endGame() {
+  buildScoreboard('final-scoreboard');
+  const winner = [...state.players].sort((a,b) => b.score - a.score)[0];
+  document.getElementById('winner-name').textContent = winner.name;
+  showScreen('screen-gameover');
+}
+
+// ──────────────────────────────────────────
+// UTILS
+// ──────────────────────────────────────────
+function shuffle(arr) {
+  for(let i=arr.length-1;i>0;i--) {
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+// INIT
+initSetup();
+</script>
+
+</body>
+</html>
